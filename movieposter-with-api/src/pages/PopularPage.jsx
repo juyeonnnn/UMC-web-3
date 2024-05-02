@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import styled from 'styled-components';
+import { Link } from 'react-router-dom';
 
 const Popular = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 30px;
-  justify-content: center; /* 가운데 정렬 */
+  gap: 20px;
+  justify-content: center;
   padding: 60px 200px;
 
   .movie-item {
@@ -18,11 +19,11 @@ const Popular = styled.div`
   }
 
   .movie-item img {
-    width: 100%; /* 포스터 이미지의 너비를 조정하여 부모 요소에 맞게 설정합니다. */
-    height: auto; /* 높이는 자동으로 조정됩니다. */
+    width: 100%;
+    height: auto;
+    border-radius: 10px 10px 0 0;
   }
 
-  /*제목과 평점*/
   .movie-info {
     margin: 10px;
     font-weight: bold;
@@ -42,7 +43,6 @@ const Popular = styled.div`
 
 const PopularPage = () => {
   const [movies, setMovies] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchMovies = async () => {
@@ -51,7 +51,6 @@ const PopularPage = () => {
           `https://api.themoviedb.org/3/movie/popular?api_key=8034545933d22b8920c3be8836dd6b76&language=en-US&page=1`
         );
         setMovies(response.data.results);
-        setIsLoading(false);
       } catch (error) {
         console.error('Error fetching popular movies: ', error);
       }
@@ -62,16 +61,20 @@ const PopularPage = () => {
   return (
     <Popular>
       {movies.map((movie) => (
-        <div key={movie.id} className="movie-item">
+        <Link
+          to={`/movie/${movie.title}`}
+          key={movie.id}
+          className="movie-item"
+        >
           <img
             src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
             alt={movie.title}
           />
           <div className="movie-info">
             <p className="moviename">{movie.title}</p>
-            <p className="movieaverage">⭐{movie.vote_average}</p>{' '}
+            <p className="movieaverage">⭐{movie.vote_average}</p>
           </div>
-        </div>
+        </Link>
       ))}
     </Popular>
   );

@@ -3,12 +3,13 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Footer from './components/Footer';
 import Navbar from './components/Navbar';
 import MainPage from './pages/MainPage';
+import MovieDetailPage from './pages/MovieDetailPage';
 import PopularPage from './pages/PopularPage';
 import NowPlayingPage from './pages/NowPlayingPage';
 import TopRatedPage from './pages/TopRatedPage';
 import UpComingPage from './pages/UpComingPage';
+import NotFound from './pages/NotFound';
 import styled from 'styled-components';
-import movieService from './services/movieService';
 
 const AppContainer = styled.div`
   display: flex;
@@ -29,22 +30,12 @@ function App() {
         <Content>
           <Routes>
             <Route path="/" element={<MainPage />} />
-            <Route
-              path="/popular"
-              element={<PopularPage />} // Popular 페이지 추가
-            />
-            <Route
-              path="/now-playing"
-              element={<NowPlayingPage movieService={movieService} />}
-            />
-            <Route
-              path="/top-rated"
-              element={<TopRatedPage movieService={movieService} />}
-            />
-            <Route
-              path="/upcoming"
-              element={<UpComingPage movieService={movieService} />}
-            />
+            <Route path="/movie/popular" element={<PopularPage />} />
+            <Route path="/movie/now-playing" element={<NowPlayingPage />} />
+            <Route path="/movie/top-rated" element={<TopRatedPage />} />
+            <Route path="/movie/upcoming" element={<UpComingPage />} />
+            <Route path="/movie/:movieName" element={<MovieDetailPage />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </Content>
         <Footer />
