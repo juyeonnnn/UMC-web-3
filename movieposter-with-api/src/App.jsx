@@ -8,6 +8,8 @@ import PopularPage from './pages/PopularPage';
 import NowPlayingPage from './pages/NowPlayingPage';
 import TopRatedPage from './pages/TopRatedPage';
 import UpComingPage from './pages/UpComingPage';
+import Signup from './pages/Signup';
+import Login from './pages/Login';
 import NotFound from './pages/NotFound';
 import styled from 'styled-components';
 
@@ -30,11 +32,13 @@ function App() {
         <Content>
           <Routes>
             <Route path="/" element={<MainPage />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/login" element={<Login />} />
             <Route path="/movie/popular" element={<PopularPage />} />
             <Route path="/movie/now-playing" element={<NowPlayingPage />} />
             <Route path="/movie/top-rated" element={<TopRatedPage />} />
             <Route path="/movie/upcoming" element={<UpComingPage />} />
-            <Route path="/movie/:movieName" element={<MovieDetailPage />} />
+            <Route path="/movie/:movieId" element={<MovieDetailPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Content>

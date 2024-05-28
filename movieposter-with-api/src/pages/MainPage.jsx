@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
+import { Link } from 'react-router-dom';
+import debounce from 'lodash.debounce';
 
 const Main = styled.div`
   h2 {
@@ -15,7 +17,7 @@ const Main = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 100px;
+    margin-bottom: 50px;
   }
   input {
     height: 50px;
@@ -39,15 +41,140 @@ const Main = styled.div`
     background-color: yellow;
   }
 `;
+
+const MovieList = styled.div`
+  overflow-y: auto;
+  max-height: 500px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  background-color: #19284b;
+  margin: 0px 100px;
+  border-radius: 20px;
+
+  .movie-item {
+    border-radius: 10px;
+    width: 200px;
+    height: 400px;
+    background-color: #30335e;
+    position: relative;
+    margin-top: 50px;
+  }
+
+  .movie-item img {
+    width: 100%;
+    height: auto;
+    border-radius: 10px 10px 0 0;
+  }
+
+  .movie-info {
+    margin: 10px;
+    font-weight: bold;
+    color: white;
+  }
+
+  .moviename {
+    font-size: 10px;
+    float: left;
+  }
+
+  .movieaverage {
+    font-size: 10px;
+    float: right;
+  }
+
+  /* 스크롤바 */
+  &::-webkit-scrollbar {
+    width: 10px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: yellow; /* 스크롤바 색상을 노란색으로 변경 */
+    border-radius: 10px;
+  }
+  &::-webkit-scrollbar-track {
+    background-color: transparent; /* 스크롤바 트랙 배경색 */
+  }
+`;
+
+const Loading = styled.div`
+  margin-top: 100px;
+  color: white;
+`;
+
 const MainPage = () => {
+  const [keyword, setKeyword] = useState('');
+  const [movies, setMovies] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (event) => {
+    const { value } = event.target;
+    setKeyword(value);
+    if (value.trim() === '') {
+      setMovies([]);
+    } else {
+      searchMovies(value);
+    }
+  };
+
+  const searchMovies = debounce((keyword) => {
+    setLoading(true);
+    const url = `https://api.themoviedb.org/3/search/movie?api_key=8034545933d22b8920c3be8836dd6b76&query=${keyword}&include_adult=false&language=ko-KR`;
+
+    const options = {
+      method: 'GET',
+      headers: {
+        accept: 'application/json',
+      },
+    };
+
+    fetch(url, options)
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.results && data.results.length > 0) {
+          setMovies(data.results);
+        } else {
+          setMovies([]);
+        }
+        setTimeout(() => {
+          setLoading(false);
+        }, 500);
+      })
+      .catch((err) => {
+        console.error(err);
+        setLoading(false);
+      });
+  }, 1500);
+
   return (
     <Main>
       <h2>환영합니다</h2>
       <h3>📽️ Find your movies !</h3>
       <div>
-        <input type="text" />
+        <input type="text" value={keyword} onChange={handleChange} />
         <button>🔍</button>
       </div>
+      {loading && <Loading>데이터를 받아오는 중입니다.</Loading>}
+      {!loading && (
+        <MovieList>
+          {movies.map((movie) => (
+            <Link
+              to={`/movie/${movie.id}`}
+              key={movie.id}
+              className="movie-item"
+            >
+              <img
+                src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                alt={movie.title}
+              />
+              <div className="movie-info">
+                <p className="moviename">{movie.title}</p>
+                <p className="movieaverage">⭐{movie.vote_average}</p>
+              </div>
+            </Link>
+          ))}
+        </MovieList>
+      )}
     </Main>
   );
 };

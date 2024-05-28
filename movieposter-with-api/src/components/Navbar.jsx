@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -42,35 +42,37 @@ const Nav = styled.nav`
     color: yellow;
   }
 
-  .login-button {
-    margin-left: auto;
-    margin-right: 10px;
-  }
+  //로그인&로그아웃
+  // .login-button {
+  //   margin-left: auto;
+  //   margin-right: 10px;
+  // }
 
-  .login-button button {
-    background-color: transparent;
-    color: white;
-    border: none;
-    cursor: pointer;
-    color: yellow;
-    font-weight: 600;
-  }
+  // .login-button button {
+  //   background-color: transparent;
+  //   color: white;
+  //   border: none;
+  //   cursor: pointer;
+  //   color: yellow;
+  //   font-weight: 600;
+  // }
 
-  .login-button button:hover {
-    font-weight: bold;
-  }
+  // .login-button button:hover {
+  //   font-weight: bold;
+  // }
 `;
 
 const Navbar = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  //로그인&로그아웃
+  // const [isLoggedIn, setIsLoggedIn] = useState(false);
+  // const handleLoginClick = () => {
+  //   setIsLoggedIn(true);
+  // };
 
-  const handleLoginClick = () => {
-    setIsLoggedIn(true);
-  };
+  // const handleLogoutClick = () => {
+  //   setIsLoggedIn(false);
+  // };
 
-  const handleLogoutClick = () => {
-    setIsLoggedIn(false);
-  };
   return (
     <Nav>
       <ul>
@@ -80,11 +82,17 @@ const Navbar = () => {
           </Link>
         </li>
         <li className="login-button">
-          {isLoggedIn ? (
+          {/* {isLoggedIn ? (
             <button onClick={handleLogoutClick}>로그아웃</button>
           ) : (
             <button onClick={handleLoginClick}>로그인</button>
-          )}
+          )} */}
+          <Link to="/login" className="active" style={{ margin: '10px' }}>
+            로그인
+          </Link>
+          <Link to="/signup" className="active">
+            회원가입
+          </Link>
         </li>
         <li>
           <Link to="/movie/popular" className="active">

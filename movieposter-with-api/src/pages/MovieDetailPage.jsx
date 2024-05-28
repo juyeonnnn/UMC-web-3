@@ -5,11 +5,10 @@ import styled from 'styled-components';
 
 const Container = styled.div`
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
   padding-top: 100px;
   color: white;
-  margin: 0px 100px;
 `;
 
 const MovieDetailContainer = styled.div`
@@ -51,23 +50,55 @@ const StarRating = ({ rating }) => {
   return <>평점 : {stars}</>;
 };
 
+const CastContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 800px;
+  margin: 20px auto;
+`;
+
+const CastItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-right: 20px;
+  margin-bottom: 20px;
+  width: 70px;
+  font-size: 10px;
+`;
+
+const CastImage = styled.img`
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-bottom: 10px;
+  object-fit: cover; //이미지 자르기
+`;
+
 const MovieDetailPage = () => {
   const [movie, setMovie] = useState(null);
-  const { movieName } = useParams();
+  const [cast, setCast] = useState([]);
+  const { movieId } = useParams();
 
   useEffect(() => {
     const fetchMovie = async () => {
       try {
-        const response = await axios.get(
-          `https://api.themoviedb.org/3/search/movie?api_key=8034545933d22b8920c3be8836dd6b76&language=en-US&query=${movieName}`
+        const movieResponse = await axios.get(
+          `https://api.themoviedb.org/3/movie/${movieId}?api_key=8034545933d22b8920c3be8836dd6b76&language=ko-KR`
         );
-        setMovie(response.data.results[0]);
+        setMovie(movieResponse.data);
+
+        const creditsResponse = await axios.get(
+          `https://api.themoviedb.org/3/movie/${movieId}/credits?api_key=8034545933d22b8920c3be8836dd6b76`
+        );
+        setCast(creditsResponse.data.cast);
       } catch (error) {
         console.error('Error fetching movie details: ', error);
       }
     };
     fetchMovie();
-  }, [movieName]);
+  }, [movieId]);
 
   if (!movie) {
     return <div>Loading...</div>;
@@ -77,7 +108,11 @@ const MovieDetailPage = () => {
     <Container>
       <MovieDetailContainer>
         <MovieImage
-          src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+          src={
+            movie.poster_path
+              ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+              : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSz7ztleRwzXhFdiwBYqZ8cib9RvEsukVVUS3niN1YQ&s'
+          }
           alt={movie.title}
         />
         <MovieInfo>
@@ -92,6 +127,22 @@ const MovieDetailPage = () => {
           </Overview>
         </MovieInfo>
       </MovieDetailContainer>
+      <h3>출연진 및 제작진</h3>
+      <CastContainer>
+        {cast.map((member) => (
+          <CastItem key={member.id}>
+            <CastImage
+              src={
+                member.profile_path
+                  ? `https://image.tmdb.org/t/p/w200${member.profile_path}`
+                  : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSz7ztleRwzXhFdiwBYqZ8cib9RvEsukVVUS3niN1YQ&s'
+              }
+              alt={member.name}
+            />
+            <span>{member.name}</span>
+          </CastItem>
+        ))}
+      </CastContainer>
     </Container>
   );
 };

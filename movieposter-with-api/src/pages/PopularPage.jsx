@@ -4,11 +4,11 @@ import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 
 const Popular = styled.div`
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 네 개의 열로 설정 */
   gap: 20px;
   justify-content: center;
-  padding: 60px 200px;
+  padding: 50px 200px;
 
   .movie-item {
     border-radius: 10px;
@@ -41,14 +41,28 @@ const Popular = styled.div`
   }
 `;
 
+const PaginationWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  margin: 0px 0px 60px 0px;
+  gap: 50px;
+  color: white;
+`;
+
+const PaginationButton = styled.div`
+  border: none;
+  border-radius: 5px;
+  cursor: ${(props) => (props.disabled ? 'not-allowed' : 'pointer')};
+`;
 const PopularPage = () => {
   const [movies, setMovies] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     const fetchMovies = async () => {
       try {
         const response = await axios.get(
-          `https://api.themoviedb.org/3/movie/popular?api_key=8034545933d22b8920c3be8836dd6b76&language=en-US&page=1`
+          `https://api.themoviedb.org/3/movie/popular?api_key=8034545933d22b8920c3be8836dd6b76&language=en-US&page=${currentPage}`
         );
         setMovies(response.data.results);
       } catch (error) {
@@ -56,27 +70,42 @@ const PopularPage = () => {
       }
     };
     fetchMovies();
-  }, []);
+  }, [currentPage]);
+
+  const gotoPrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage((prevPage) => prevPage - 1);
+    }
+  };
+
+  const gotoNextPage = () => {
+    setCurrentPage((prevPage) => prevPage + 1);
+  };
 
   return (
-    <Popular>
-      {movies.map((movie) => (
-        <Link
-          to={`/movie/${movie.title}`}
-          key={movie.id}
-          className="movie-item"
-        >
-          <img
-            src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-            alt={movie.title}
-          />
-          <div className="movie-info">
-            <p className="moviename">{movie.title}</p>
-            <p className="movieaverage">⭐{movie.vote_average}</p>
-          </div>
-        </Link>
-      ))}
-    </Popular>
+    <>
+      <Popular>
+        {movies.map((movie) => (
+          <Link to={`/movie/${movie.id}`} key={movie.id} className="movie-item">
+            <img
+              src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+              alt={movie.title}
+            />
+            <div className="movie-info">
+              <p className="moviename">{movie.title}</p>
+              <p className="movieaverage">⭐{movie.vote_average}</p>
+            </div>
+          </Link>
+        ))}
+      </Popular>
+      <PaginationWrapper>
+        {currentPage > 1 && (
+          <PaginationButton onClick={gotoPrevPage}>{'<'}</PaginationButton>
+        )}
+        <div>{currentPage}</div>
+        <PaginationButton onClick={gotoNextPage}>{'>'}</PaginationButton>
+      </PaginationWrapper>
+    </>
   );
 };
 

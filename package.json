@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "lodash": "^4.17.21",
     "react-loader-spinner": "^6.1.6",
     "react-router-dom": "^6.23.0"
   }

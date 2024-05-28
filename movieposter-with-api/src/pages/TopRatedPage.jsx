@@ -4,8 +4,8 @@ import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 
 const TopRated = styled.div`
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 네 개의 열로 설정 */
   gap: 20px;
   justify-content: center;
   padding: 60px 200px;
@@ -61,11 +61,7 @@ const TopRatedPage = () => {
   return (
     <TopRated>
       {movies.map((movie) => (
-        <Link
-          to={`/movie/${movie.title}`}
-          key={movie.id}
-          className="movie-item"
-        >
+        <Link to={`/movie/${movie.id}`} key={movie.id} className="movie-item">
           <img
             src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
             alt={movie.title}
