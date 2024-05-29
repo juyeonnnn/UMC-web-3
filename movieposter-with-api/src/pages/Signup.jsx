@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+import debounce from 'lodash.debounce';
 
 const Container = styled.div`
   display: flex;
@@ -63,20 +64,20 @@ const Haveid = styled.div`
 function SignupForm() {
   const [formData, setFormData] = useState({
     name: '',
-    id: '',
+    username: '',
     email: '',
     age: '',
     password: '',
-    confirmPassword: '',
+    passwordCheck: '',
   });
 
   const [errors, setErrors] = useState({
     name: '',
-    id: '',
+    username: '',
     email: '',
     age: '',
     password: '',
-    confirmPassword: '',
+    passwordCheck: '',
   });
 
   const [isValid, setIsValid] = useState(false);
@@ -88,36 +89,57 @@ function SignupForm() {
       [name]: value,
     });
     validateField(name, value);
-    setIsValid(validateForm()); // 입력값이 바뀔 때마다 유효성 검사
+    setIsValid(Object.values(formData).every((value) => value.trim() !== '')); // 입력값이 바뀔 때마다 유효성 검사
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    const formIsValid = validateForm(); // 유효성 검사 수행
+    const formIsValid = validateForm(); // 폼 유효성 검사
     setIsValid(formIsValid); // 유효성 여부 업데이트
     if (formIsValid) {
-      // 유효성 검사 통과 시 처리
-      console.log('폼 데이터:', formData);
-      alert('회원가입 성공!');
-      // 로그인페이지로 이동
-      setTimeout(() => {
-        window.location.href = '/login'; // 로그인 URL로 변경
-      });
+      try {
+        const response = await fetch('http://localhost:8080/auth/signup', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData),
+        });
+        const data = await response.json();
+
+        // 성공적으로 회원가입한 경우
+        if (response.ok) {
+          alert('회원가입 성공!');
+          // 로그인 페이지로 이동
+          window.location.href = '/login';
+        } else {
+          // 이미 존재하는 아이디인 경우
+          if (response.status === 409) {
+            alert(data.message);
+          }
+          // 비밀번호가 일치하지 않는 경우
+          else if (response.status === 400) {
+            alert(data.message);
+          }
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('회원가입에 실패했습니다. 다시 시도해주세요.');
+      }
     } else {
-      // 유효성 검사 실패 시 에러 메시지 표시
+      // 폼 유효성 검사 실패 시 에러 메시지 표시
       setErrors((prevErrors) => ({
         ...prevErrors,
         name: formData.name.trim() ? '' : '이름을 입력해주세요.',
-        id: formData.id.trim() ? '' : '아이디를 입력해주세요.',
+        username: formData.username.trim() ? '' : '아이디를 입력해주세요.',
         email: formData.email.trim() ? '' : '이메일을 입력해주세요.',
         age: formData.age.trim() ? '' : '나이를 입력해주세요.',
         password: formData.password.trim() ? '' : '비밀번호를 입력해주세요.',
-        confirmPassword: formData.confirmPassword.trim()
+        passwordCheck: formData.passwordCheck.trim()
           ? ''
           : '비밀번호를 다시 입력해주세요.',
       }));
     }
-    setIsValid(formIsValid); // 유효성 여부 업데이트
   };
 
   //유효성 검사
@@ -139,7 +161,7 @@ function SignupForm() {
           errorMessage = '이름을 입력해주세요.';
         }
         break;
-      case 'id':
+      case 'username':
         if (!value.trim()) {
           errorMessage = '아이디를 입력해주세요.';
         }
@@ -176,7 +198,7 @@ function SignupForm() {
           errorMessage = '영어, 숫자, 특수문자를 포함해주세요.';
         }
         break;
-      case 'confirmPassword':
+      case 'passwordCheck':
         if (!value.trim()) {
           errorMessage = '비밀번호를 다시 입력해주세요.';
         } else if (value.trim() !== formData.password) {
@@ -209,12 +231,12 @@ function SignupForm() {
         <Label></Label>
         <Input
           type="text"
-          name="id"
-          value={formData.id}
+          name="username"
+          value={formData.username}
           onChange={handleChange}
           placeholder="아이디를 입력해주세요."
         />
-        {errors.id && <ErrorMessage>{errors.id}</ErrorMessage>}
+        {errors.username && <ErrorMessage>{errors.username}</ErrorMessage>}
 
         <Label></Label>
         <Input
@@ -249,18 +271,16 @@ function SignupForm() {
         <Label></Label>
         <Input
           type="password"
-          name="confirmPassword"
-          value={formData.confirmPassword}
+          name="passwordCheck"
+          value={formData.passwordCheck}
           onChange={handleChange}
           placeholder="비밀번호를 입력해주세요."
         />
-        {errors.confirmPassword && (
-          <ErrorMessage>{errors.confirmPassword}</ErrorMessage>
+        {errors.passwordCheck && (
+          <ErrorMessage>{errors.passwordCheck}</ErrorMessage>
         )}
         <br />
-        <Button type="submit" isValid={isValid}>
-          제출하기
-        </Button>
+        <Button type="submit">제출하기</Button>
       </Form>
       <Haveid>
         <div>아이디가 이미 있으신가요?</div>
