@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -34,7 +34,6 @@ const Nav = styled.nav`
 
   .active:hover {
     font-weight: bold;
-    font-size: 16px;
   }
 
   .active:focus {
@@ -42,36 +41,38 @@ const Nav = styled.nav`
     color: yellow;
   }
 
-  //로그인&로그아웃
-  // .login-button {
-  //   margin-left: auto;
-  //   margin-right: 10px;
-  // }
+  로그인&로그아웃 .login-button {
+    margin-left: auto;
+    margin-right: 10px;
+  }
 
-  // .login-button button {
-  //   background-color: transparent;
-  //   color: white;
-  //   border: none;
-  //   cursor: pointer;
-  //   color: yellow;
-  //   font-weight: 600;
-  // }
-
-  // .login-button button:hover {
-  //   font-weight: bold;
-  // }
+  .login-button button {
+    background-color: transparent;
+    color: yellow;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+  }
 `;
 
 const Navbar = () => {
-  //로그인&로그아웃
-  // const [isLoggedIn, setIsLoggedIn] = useState(false);
-  // const handleLoginClick = () => {
-  //   setIsLoggedIn(true);
-  // };
+  //로그인 & 로그아웃
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // const handleLogoutClick = () => {
-  //   setIsLoggedIn(false);
-  // };
+  // 페이지가 로드될 때 로컬 스토리지에서 토큰을 확인하여 로그인 상태를 설정합니다.
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    setIsLoggedIn(token); // 토큰이 존재하면 isLoggedIn을 true로 설정합니다.
+  }, []);
+
+  // 로그아웃 시에는 로컬 스토리지에서 토큰을 삭제하고 isLoggedIn 상태를 false로 설정합니다.
+  const handleLogoutClick = () => {
+    localStorage.removeItem('token');
+    setIsLoggedIn(false);
+    // 페이지를 새로고침합니다.
+    window.location.reload();
+  };
 
   return (
     <Nav>
@@ -82,17 +83,18 @@ const Navbar = () => {
           </Link>
         </li>
         <li className="login-button">
-          {/* {isLoggedIn ? (
+          {isLoggedIn ? (
             <button onClick={handleLogoutClick}>로그아웃</button>
           ) : (
-            <button onClick={handleLoginClick}>로그인</button>
-          )} */}
-          <Link to="/login" className="active" style={{ margin: '10px' }}>
-            로그인
-          </Link>
-          <Link to="/signup" className="active">
-            회원가입
-          </Link>
+            <>
+              <Link to="/login" className="active" style={{ margin: '10px' }}>
+                로그인
+              </Link>
+              <Link to="/signup" className="active">
+                회원가입
+              </Link>
+            </>
+          )}
         </li>
         <li>
           <Link to="/movie/popular" className="active">

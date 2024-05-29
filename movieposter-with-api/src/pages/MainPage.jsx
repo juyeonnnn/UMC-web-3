@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import debounce from 'lodash.debounce';
@@ -106,6 +106,46 @@ const MainPage = () => {
   const [keyword, setKeyword] = useState('');
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(false);
+  //로그인
+  const [userName, setUserName] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loadingUser, setloadingUser] = useState(false);
+
+  useEffect(() => {
+    // 페이지가 로드될 때 로컬 스토리지에서 토큰을 확인하여 사용자 정보를 요청합니다.
+    const token = localStorage.getItem('token');
+    if (token) {
+      fetchUserInfo(token);
+    }
+  }, []);
+
+  const fetchUserInfo = (token) => {
+    setloadingUser(true);
+    fetch('http://localhost:8080/auth/me', {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Failed to fetch user information');
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setUserName(data.name);
+        setIsLoggedIn(true);
+      })
+      .catch((error) => {
+        console.error('Error fetching user information:', error);
+      })
+      .finally(() => {
+        setTimeout(() => {
+          setloadingUser(false);
+        }, 800); // 사용자 정보 요청이 완료되면 로딩 상태를 비활성화
+      });
+  };
 
   const handleChange = (event) => {
     const { value } = event.target;
@@ -148,7 +188,15 @@ const MainPage = () => {
 
   return (
     <Main>
-      <h2>환영합니다</h2>
+      {isLoggedIn ? (
+        loadingUser ? (
+          <Loading>로딩중...</Loading>
+        ) : (
+          <h2>{`${userName}님 환영합니다!`}</h2>
+        )
+      ) : (
+        <h2>환영합니다!</h2>
+      )}
       <h3>📽️ Find your movies !</h3>
       <div>
         <input type="text" value={keyword} onChange={handleChange} />

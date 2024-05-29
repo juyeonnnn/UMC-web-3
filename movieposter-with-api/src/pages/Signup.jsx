@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import debounce from 'lodash.debounce';
 
 const Container = styled.div`
   display: flex;
